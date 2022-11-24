@@ -1,0 +1,10 @@
+
+body {background-color: black;color: wheat;}
+.cell{
+    width: 60px;
+    height: 60px;
+
+}
+.floor{background-color: gray;}
+.wall{background-color: brown;}
+.target{background-color: gold;}

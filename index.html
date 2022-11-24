@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sokoban</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body onkeyup="handleKey(event)">
+    <h1>SOKOBAN</h1>
+    <div class="">
+        <h3>Steps: <span id ="spnStepsCount:">0 </h3>
+    </div>
+    <input type="text" id="txtUsername" placeholder="Enter your name">
+    <button onclick="syaHello()">Press Me</button>
+    <button onclick="printBoard()">Print Board</button>
+    <table id="tblBoard"></table>
+    <script>
+
+        
+        var WALL   = "WALL";
+        var FLOOR  = "FLOOR";
+        var TARGET ="TARGET";
+        var GAMER  = "GAMER";
+        var BOX    = "BOX";
+
+        var gGamerPos={i:2, j:9};
+
+        var gBoard=buildBoard();
+        
+
+        //var obj = {name: "Vikas",age:23};
+        //console.log(obj)
+
+
+        function buildBoard(){
+            // create matrix
+            var board = new Array(10);
+            for(var i=0;i<board.length;i++){
+                board[i] = new Array(12);
+            }
+            var WALL = "WALL";
+            //console.log(board.length);
+            // put floor everwhere and wall at edges
+
+            for(var i=0;i<board.length;i++){
+                for(var j=0;j<board[0].length;j++){
+                    var k = board.length - 1;
+                    var k1 = board[0].length -1;
+
+                    var cell ={type: FLOOR,gameElement: null};
+                    // if at edge
+                    if(i==0 || i==k || j==0 || j==k1){
+                        cell.type = WALL;
+                        /*board[i][j] = WALL;*/}
+                    else{
+                        //board[i][j]="FLOOR";
+                    }
+                    board[i][j]=cell;
+                }
+            }
+            // target
+            board[5][7].type = TARGET;
+            board[3][7].type = TARGET;
+            // place the gamer
+            board[gGamerPos.i][gGamerPos.j].gameElement = GAMER;
+            // place the boxes
+            board[3][8].gameElement = BOX;
+            board[7][4].gameElement = BOX;
+
+            console.log(board);
+            return board;  
+        }
+        function printBoard(){
+            
+
+            var tblBoard = document.getElementById('tblBoard');
+            var strHTML = '';
+
+            for(var i=0;i<gBoard.length;i++){
+                strHTML +="<tr>";
+                for(var j=0;j<gBoard[0].length;j++){
+                    var currCell = gBoard[i][j];
+                    var cellClass;
+                    if(currCell.type==FLOOR){cellClass="floor";}
+                    else if(currCell.type==WALL){cellClass="wall";}
+                    else if(currCell.type==TARGET){cellClass="target";}
+                    strHTML += "<td class='cell "+cellClass + "' onclick='handleClick("+i+","+j+")'> ";
+                    if(currCell.gameElement == GAMER){
+                        strHTML += "<img src='imgs/game33.png'>";
+                    }else if(currCell.gameElement == BOX){
+                        strHTML += "<img src='imgs/img34.png'>";
+                    }
+                    strHTML +="</td>";
+                    
+                }
+                strHTML += "</tr>";
+            }
+            tblBoard.innerHTML = strHTML;
+        }
+        function handleClick(i,j){
+             var iDiff = i  - gGamerPos.i;
+             var jDiff = j - gGamerPos.j;
+             var iAbsDiff = Math.abs(i-gGamerPos.i);
+             var jAbsDiff = Math.abs(j-gGamerPos.j);
+             if((iAbsDiff==1 && jAbsDiff==0) || (iAbsDiff==0 && jAbsDiff==1)){
+              if(gBoard[i][j].type != WALL){
+                var canMove = true;
+                if(gBoard[i][j].gameElement==BOX){
+                    if(gBoard[i+iDiff][j+jDiff].type != WALL && gBoard[i+iDiff][j+jDiff].gameElement == null){
+                        gBoard[i][j].gameElement=null;
+                        gBoard[i+iDiff][j+jDiff].gameElement = BOX;
+                    }else{
+                        canMove=false;
+                        console.log("Wall behind room");
+                    }
+                }
+                if(canMove){
+
+                    gBoard[gGamerPos.i][gGamerPos.j].gameElement = null;
+                    gGamerPos.i = i;
+                    gGamerPos.j = j;
+                    gBoard[gGamerPos.i][gGamerPos.j].gameElement = GAMER;
+                    var spnStepsCunt = document.getElementById('spnStepsCount:');
+                    spnStepsCunt.innerHTML++;
+                    printBoard();
+                    checkVictory();}
+              }   
+             }   
+        }
+        function checkVictory(){
+            var isVictory = true;
+            for(var i=0;i<gBoard.length;i++){
+                for(var j=0;j<gBoard[0].length;j++){
+                    var currCell = gBoard[i][j];
+                    if(currCell.type == TARGET && currCell.gameElement != BOX){
+                          isVictory=false;
+                }
+            }
+        }
+        if(isVictory){alert("Congratulation!");}}
+        function handleKey(event){
+            console.log(event.keyCode,event.keyIdentifier);
+            var i = gGamerPos.i;
+            var j = gGamerPos.j;
+            switch(event.keyCode){
+                    case 37:
+                    handleClick(i,j-1);
+                    break;
+                    case 38:
+                    handleClick(i-1,j);
+                    break;
+                    case 39:
+                    handleClick(i,j+1);
+                    break;
+                    case 40:
+                    handleClick(i+1,j);
+                    break;
+            }
+        }
+    </script>
+</body>
+</html>
